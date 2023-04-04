@@ -441,19 +441,26 @@ Message *Tasks::ReadInQueue(RT_QUEUE *queue) {
 void Tasks::UpdateBatteryLevel(void *arg)
 {
     Message* batteryLevel;
+    int rs;
     // Blocking while resources arent ready
     rt_sem_p(&sem_barrier, TM_INFINITE);
     // Enable periodicity of task
     rt_task_set_periodic(NULL, TM_NOW, 500000000);
     while (1) {
         // Waiting for period
-        rt_task_wait_period(NULL); 
-        // Block robot resources
-        rt_mutex_acquire(&mutex_robot, TM_INFINITE); 
-        // Collecting data
-        batteryLevel = (Message*)robot.Write(new Message((MessageID)MESSAGE_ROBOT_BATTERY_GET));
-        // Release robot resources
-        rt_mutex_release(&mutex_robot);              
+        rt_task_wait_period(NULL);
+        // CHekc if robot is started 
+        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+        rs = robotStarted;
+        rt_mutex_release(&mutex_robotStarted);
+        if (rs == 1) {
+            // Block robot resources
+            rt_mutex_acquire(&mutex_robot, TM_INFINITE); 
+            // Collecting data
+            batteryLevel = (Message*)robot.Write(new Message((MessageID)MESSAGE_ROBOT_BATTERY_GET));
+            // Release robot resources
+            rt_mutex_release(&mutex_robot);   
+        }           
         // Send message to monitor with battery level
         WriteInQueue(&q_messageToMon, batteryLevel);
     }
