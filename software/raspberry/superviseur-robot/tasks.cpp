@@ -27,6 +27,11 @@
 #define PRIORITY_TSTARTROBOT 20
 #define PRIORITY_TCAMERA 21
 
+
+// INSA CONSTANTS
+#define PRIORITY_TBATTERYLEVEL 30
+// END CONSTANTS
+
 /*
  * Some remarks:
  * 1- This program is mostly a template. It shows you how to create tasks, semaphore
@@ -123,6 +128,15 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // INSA Custom tasks
+    // Battery Level (13)
+    if (err = rt_task_create(&th_updateBatteryLevel, "th_move", 0, PRIORITY_TBATTERYLEVEL, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+
+
+    // INSA End custom tasks
     cout << "Tasks created successfully" << endl << flush;
 
     /**************************************************************************************/
@@ -167,7 +181,15 @@ void Tasks::Run() {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // INSA Custom tasks
+    // Battery level (13)
+    if (err = rt_task_start(&th_updatebatterylevel, (void(*)(void*)) & Tasks::UpdateBatteryLevel, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
 
+
+    // INSA End custom tasks
     cout << "Tasks launched" << endl << flush;
 }
 
@@ -415,3 +437,21 @@ Message *Tasks::ReadInQueue(RT_QUEUE *queue) {
     return msg;
 }
 
+// Display battery level
+Message* Tasks::UpdateBatteryLevel(void *arg)
+{
+    Message* batteryLevel;
+    rt_task_set_periodic(NULL, TM_NOW, 500000000);
+    while (1) {
+        // Waiting for period
+        rt_task_wait_period(NULL);
+        
+        rt_mutex_acquire(&mutex_robot, TM_INFINITE); // Block robot resources
+        // Collecting data
+        robot.Write(new Message((MessageID)cpMove));
+        rt_mutex_release(&mutex_robot);              // Release robot resources
+        // Send message to monitor with battery level
+        batteryLevel = robot.Write(robot.GetBattery());
+        WriteInQueue(&q_messageToMon, batteryLevel);
+    }
+}

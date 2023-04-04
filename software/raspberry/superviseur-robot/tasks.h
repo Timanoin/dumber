@@ -76,6 +76,9 @@ private:
     RT_TASK th_openComRobot;
     RT_TASK th_startRobot;
     RT_TASK th_move;
+    // INSA Custom tasks
+    RT_TASK th_update_battery_level
+    // INSA End custom tasks
     
     /**********************************************************************/
     /* Mutex                                                              */
@@ -149,6 +152,7 @@ private:
      */
     Message *ReadInQueue(RT_QUEUE *queue);
 
+    void UpdateBatteryLevel(void *arg);
 };
 
 #endif // __TASKS_H__ 
