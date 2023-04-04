@@ -451,7 +451,7 @@ void Tasks::UpdateBatteryLevel(void *arg)
         // Block robot resources
         rt_mutex_acquire(&mutex_robot, TM_INFINITE); 
         // Collecting data
-        batteryLevel = robot.Write(robot.GetBattery());
+        batteryLevel = (Message*)robot.Write(new Message((MessageID)MESSAGE_ROBOT_BATTERY_GET));
         // Release robot resources
         rt_mutex_release(&mutex_robot);              
         // Send message to monitor with battery level
