@@ -130,7 +130,7 @@ void Tasks::Init() {
     }
     // INSA Custom tasks
     // Battery Level (13)
-    if (err = rt_task_create(&th_updateBatteryLevel, "th_move", 0, PRIORITY_TBATTERYLEVEL, 0)) {
+    if (err = rt_task_create(&th_updateBatteryLevel, "th_updateBetteryLevel", 0, PRIORITY_TBATTERYLEVEL, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
