@@ -77,7 +77,7 @@ private:
     RT_TASK th_startRobot;
     RT_TASK th_move;
     // INSA Custom tasks
-    RT_TASK th_update_battery_level;
+    RT_TASK th_updateBatteryLevel;
     // INSA End custom tasks
     
     /**********************************************************************/

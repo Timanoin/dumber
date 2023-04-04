@@ -183,7 +183,7 @@ void Tasks::Run() {
     }
     // INSA Custom tasks
     // Battery level (13)
-    if (err = rt_task_start(&th_updatebatterylevel, (void(*)(void*)) & Tasks::UpdateBatteryLevel, this)) {
+    if (err = rt_task_start(&th_updateBatteryLevel, (void(*)(void*)) & Tasks::UpdateBatteryLevel, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -444,11 +444,10 @@ void Tasks::UpdateBatteryLevel(void *arg)
     rt_task_set_periodic(NULL, TM_NOW, 500000000);
     while (1) {
         // Waiting for period
-        rt_task_wait_period(NULL);
-        
+        rt_task_wait_period(NULL); 
         rt_mutex_acquire(&mutex_robot, TM_INFINITE); // Block robot resources
         // Collecting data
-        robot.Write(new Message((MessageID)cpMove));
+        robot.Write(robot.GetBattery());
         rt_mutex_release(&mutex_robot);              // Release robot resources
         // Send message to monitor with battery level
         batteryLevel = robot.Write(robot.GetBattery());
