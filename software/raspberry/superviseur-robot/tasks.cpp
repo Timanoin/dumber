@@ -438,7 +438,7 @@ Message *Tasks::ReadInQueue(RT_QUEUE *queue) {
 }
 
 // Display battery level
-Message* Tasks::UpdateBatteryLevel(void *arg)
+void Tasks::UpdateBatteryLevel(void *arg)
 {
     Message* batteryLevel;
     rt_task_set_periodic(NULL, TM_NOW, 500000000);
