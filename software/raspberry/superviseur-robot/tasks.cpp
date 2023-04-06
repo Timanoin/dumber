@@ -442,14 +442,14 @@ void Tasks::UpdateBatteryLevel(void *arg)
 {
     Message* batteryLevel;
     int rs;
-    // Blocking while resources arent ready
+    // Block while resources arent ready
     rt_sem_p(&sem_barrier, TM_INFINITE);
-    // Enable periodicity of task
+    // Task of period 500ms
     rt_task_set_periodic(NULL, TM_NOW, 500000000);
     while (1) {
-        // Waiting for period
+        // Wait for period
         rt_task_wait_period(NULL);
-        // CHekc if robot is started 
+        // Check if the robot is started 
         rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
         rs = robotStarted;
         rt_mutex_release(&mutex_robotStarted);
