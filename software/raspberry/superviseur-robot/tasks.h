@@ -78,6 +78,7 @@ private:
     RT_TASK th_move;
     // INSA Custom tasks
     RT_TASK th_updateBatteryLevel;
+    RT_TASK th_startRobotWD;
     // INSA End custom tasks
     
     /**********************************************************************/
@@ -95,6 +96,9 @@ private:
     RT_SEM sem_openComRobot;
     RT_SEM sem_serverOk;
     RT_SEM sem_startRobot;
+    // INSA Cutom Semaphores
+    RT_SEM sem_startRobotWD;
+    // END INSA
 
     /**********************************************************************/
     /* Message queues                                                     */
@@ -153,6 +157,8 @@ private:
     Message *ReadInQueue(RT_QUEUE *queue);
 
     void UpdateBatteryLevel(void *arg);
+    void StartRobotTaskWD(void *arg);
+
 };
 
 #endif // __TASKS_H__ 
