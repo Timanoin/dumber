@@ -144,21 +144,10 @@ void Tasks::Init() {
         exit(EXIT_FAILURE);
     }
     // Watchdog (11)
-<<<<<<< HEAD
     // if (err = rt_task_create(&th_startRobotWD, "th_startRobotWD", 0, PRIORITY_TSTARTROBOTWD, 0)) {
     //     cerr << "Error task create: " << strerror(-err) << endl << flush;
     //     exit(EXIT_FAILURE);
     // }
-=======
-    if (err = rt_task_create(&th_startRobotWD, "th_startRobotWD", 0, PRIORITY_TSTARTROBOTWD, 0)) {
-        cerr << "Error task create: " << strerror(-err) << endl << flush;
-        exit(EXIT_FAILURE);
-    }
-    if (err = rt_task_create(&th_refreshWD, "th_refreshWD", 0, PRIORITY_TREFRESHWD, 0)) {
-        cerr << "Error task create: " << strerror(-err) << endl << flush;
-        exit(EXIT_FAILURE);
-    }
->>>>>>> 31fa671cfc4bffeb979ee86f99deb03355570f03
 
 
     // END custom tasks
@@ -213,21 +202,10 @@ void Tasks::Run() {
         exit(EXIT_FAILURE);
     }
     // Start robot with Watchdog (11)
-<<<<<<< HEAD
     // if (err = rt_task_start(&th_startRobotWD, (void(*)(void*)) & Tasks::StartRobotTaskWD, this)) {
     //     cerr << "Error task start: " << strerror(-err) << endl << flush;
     //     exit(EXIT_FAILURE);
     // }
-=======
-    if (err = rt_task_start(&th_startRobotWD, (void(*)(void*)) & Tasks::StartRobotTaskWD, this)) {
-        cerr << "Error task start: " << strerror(-err) << endl << flush;
-        exit(EXIT_FAILURE);
-    }
-    if (err = rt_task_start(&th_refreshWD, (void(*)(void*)) & Tasks::RefreshWD, this)) {
-        cerr << "Error task start: " << strerror(-err) << endl << flush;
-        exit(EXIT_FAILURE);
-    }
->>>>>>> 31fa671cfc4bffeb979ee86f99deb03355570f03
 
     // INSA End custom tasks
     cout << "Tasks launched" << endl << flush;
@@ -516,7 +494,6 @@ void Tasks::UpdateBatteryLevel(void *arg)
 //     // Synchronization barrier (waiting that all tasks are starting)
 //     rt_sem_p(&sem_barrier, TM_INFINITE);
     
-<<<<<<< HEAD
 //     /**************************************************************************************/
 //     /* The task startRobot starts here                                                    */
 //     /**************************************************************************************/
@@ -542,31 +519,3 @@ void Tasks::UpdateBatteryLevel(void *arg)
 //         }
 //     }
 // }
-=======
-    /**************************************************************************************/
-    /* The task startRobot starts here                                                    */
-    /**************************************************************************************/
-    while (1) {
-
-        Message * msgSend;
-        rt_sem_p(&sem_startRobotWD, TM_INFINITE);
-        cout << "Start robot with watchdog (";
-        rt_mutex_acquire(&mutex_robot, TM_INFINITE);
-        msgSend = robot.Write(robot.StartWithWD());
-        rt_mutex_release(&mutex_robot);
-
-        cout << msgSend->GetID();
-        cout << ")" << endl;
-
-        cout << "Movement answer: " << msgSend->ToString() << endl << flush;
-        WriteInQueue(&q_messageToMon, msgSend);  // msgSend will be deleted by sendToMon
-
-        if (msgSend->GetID() == MESSAGE_ANSWER_ACK) {
-            rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
-            robotStarted = 1;
-            rt_mutex_release(&mutex_robotStarted);
-        }
-    }
-}
-
->>>>>>> 31fa671cfc4bffeb979ee86f99deb03355570f03
