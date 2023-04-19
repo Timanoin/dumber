@@ -159,6 +159,7 @@ private:
 
     void UpdateBatteryLevel(void *arg);
     void StartRobotTaskWD(void *arg);
+    void ReloadWD(void *arg);
 
 };
 

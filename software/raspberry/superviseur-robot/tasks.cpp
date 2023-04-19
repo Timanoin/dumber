@@ -31,6 +31,7 @@
 // INSA CONSTANTS
 #define PRIORITY_TBATTERYLEVEL 30
 #define PRIORITY_TSTARTROBOTWD 20
+#define PRIORITY_TSTARTROBOTWD 20
 
 // END CONSTANTS
 
@@ -155,7 +156,7 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-    if (err = rt_task_create(&th_reloadWD, "th_reloadWD", 0, PRIORITY_TRELOADWD, 0)) {
+    if (err = rt_task_create(&th_reloadWD, "th_reloadWD", 0, PRIORITY_T RELOADWD, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -541,7 +542,7 @@ void Tasks::StartRobotTaskWD(void *arg) {
 }
 
 
-void Tasks::RefreshWD(void *arg) {
+void Tasks::ReloadWD(void *arg) {
     Message* batteryLevel;
     int rs;
     // Block while resources arent ready
