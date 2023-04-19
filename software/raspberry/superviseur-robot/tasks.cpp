@@ -575,10 +575,10 @@ void Tasks::ReloadWD(void *arg) {
 void Tasks::checkWriteError(Message* msg)
 {
     // Compteur a trois
-    if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || MESSAGE_ANSWER_COM_ERROR)
+    if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || *msg == MESSAGE_ANSWER_COM_ERROR)
     {
         cpt += 1;
-        cout << "/!\\ Compteur : " << cpt << endl;
+        cout << endl << "/!\\ Compteur : " << cpt;
     }
     else 
     {
