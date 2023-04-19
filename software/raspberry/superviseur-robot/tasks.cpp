@@ -585,7 +585,7 @@ void Tasks::checkWriteError(Message* msg)
         cpt = 0;
     }
     // Eteindre le robot quand la communication est perdue
-    if (cpt = 3)
+    if (cpt >= 3)
     {
         rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
         robotStarted = 0;
