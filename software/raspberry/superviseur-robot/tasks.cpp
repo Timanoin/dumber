@@ -530,7 +530,7 @@ void Tasks::StartRobotTaskWD(void *arg) {
         msgSend = robot.Write(robot.StartWithWD());
         rt_mutex_release(&mutex_robot);
         checkWriteError(msgSend);
-        
+
         cout << msgSend->GetID();
         cout << ")" << endl;
 
@@ -547,7 +547,6 @@ void Tasks::StartRobotTaskWD(void *arg) {
 
 
 void Tasks::ReloadWD(void *arg) {
-    Message* batteryLevel;
     int rs;
     // Block while resources arent ready
     rt_sem_p(&sem_barrier, TM_INFINITE);

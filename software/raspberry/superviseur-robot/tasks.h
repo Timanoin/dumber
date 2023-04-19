@@ -164,7 +164,7 @@ private:
     void StartRobotTaskWD(void *arg);
     void ReloadWD(void *arg);
 
-    void checkMsgAnswer(Message* msg);
+    void checkWriteError(Message* msg);
     // END INSA
 
 };
