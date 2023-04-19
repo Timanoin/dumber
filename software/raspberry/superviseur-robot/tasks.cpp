@@ -578,6 +578,7 @@ void Tasks::checkWriteError(Message* msg)
     if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || MESSAGE_ANSWER_COM_ERROR)
     {
         cpt += 1;
+        cout << "/!\\ Compteur : " << cpt << endl;
     }
     else 
     {
@@ -590,6 +591,7 @@ void Tasks::checkWriteError(Message* msg)
         robotStarted = 0;
         rt_mutex_release(&mutex_robotStarted);
     } 
+    
 }
 
 
