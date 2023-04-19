@@ -65,6 +65,7 @@ private:
     ComMonitor monitor;
     ComRobot robot;
     int robotStarted = 0;
+    int cpt = 0;
     int move = MESSAGE_ROBOT_STOP;
     
     /**********************************************************************/
@@ -157,9 +158,14 @@ private:
      */
     Message *ReadInQueue(RT_QUEUE *queue);
 
+    // INSA
+
     void UpdateBatteryLevel(void *arg);
     void StartRobotTaskWD(void *arg);
     void ReloadWD(void *arg);
+
+    void checkMsgAnswer(Message* msg);
+    // END INSA
 
 };
 

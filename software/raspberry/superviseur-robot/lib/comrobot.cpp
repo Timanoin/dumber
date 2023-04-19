@@ -149,33 +149,10 @@ Message *ComRobot::Write(Message* msg) {
 
     // deallocation of msg
     delete(msg);
-
-    checkMsgAnswer(msgAnswer);
+    
     return msgAnswer;
 }
 
-
-// INSA : Fonctionnalites 8&9
-// Recupere le message d'erreur (ou pas) du robot alors de l'ecriture et gere un compteur a trois
-void checkMsgError(Message* msg)
-{
-    static int cpt = 0;
-    // Compteur a trois
-    if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || MESSAGE_ANSWER_COM_ERROR)
-    {
-        cpt += 1;
-    }
-    else 
-    {
-        cpt = 0;
-    }
-    // Eteindre le robot quand la communication est perdue
-    if (cpt = 3)
-    {
-        robotStarted = 0;
-    } 
-}
-// END INSA
 
 /**
  * Get a message from robot

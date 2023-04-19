@@ -398,6 +398,7 @@ void Tasks::StartRobotTask(void *arg) {
         rt_mutex_acquire(&mutex_robot, TM_INFINITE);
         msgSend = robot.Write(robot.StartWithoutWD());
         rt_mutex_release(&mutex_robot);
+        checkWriteError(msgSend);
 
         cout << msgSend->GetID();
         cout << ")" << endl;
@@ -443,7 +444,7 @@ void Tasks::MoveTask(void *arg) {
             cout << " move: " << cpMove;
             
             rt_mutex_acquire(&mutex_robot, TM_INFINITE);
-            robot.Write(new Message((MessageID)cpMove));
+            checkWriteError(robot.Write(new Message((MessageID)cpMove)));
             rt_mutex_release(&mutex_robot);
         }
         cout << endl << flush;
@@ -503,6 +504,7 @@ void Tasks::UpdateBatteryLevel(void *arg)
             rt_mutex_acquire(&mutex_robot, TM_INFINITE); 
             // Collecting data
             batteryLevel = (Message*)robot.Write(new Message(MESSAGE_ROBOT_BATTERY_GET));//robot.Write(robot.getBattery());
+            checkWriteError(batteryLevel);
             // Release robot resources
             rt_mutex_release(&mutex_robot);  
             // Send message to monitor with battery level
@@ -527,7 +529,8 @@ void Tasks::StartRobotTaskWD(void *arg) {
         rt_mutex_acquire(&mutex_robot, TM_INFINITE);
         msgSend = robot.Write(robot.StartWithWD());
         rt_mutex_release(&mutex_robot);
-
+        checkWriteError(msgSend);
+        
         cout << msgSend->GetID();
         cout << ")" << endl;
 
@@ -561,10 +564,34 @@ void Tasks::ReloadWD(void *arg) {
             // Block robot resources
             rt_mutex_acquire(&mutex_robot, TM_INFINITE); 
             // Collecting data
-            robot.Write(robot.ReloadWD());
+            checkWriteError(robot.Write(robot.ReloadWD()));
             // Release robot resources
             rt_mutex_release(&mutex_robot);   
         }
     }
 }
 
+// Fonctionnalites 8&9
+// Recupere le message d'erreur (ou pas) du robot alors de l'ecriture et gere un compteur a trois
+void Tasks::checkWriteError(Message* msg)
+{
+    // Compteur a trois
+    if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || MESSAGE_ANSWER_COM_ERROR)
+    {
+        cpt += 1;
+    }
+    else 
+    {
+        cpt = 0;
+    }
+    // Eteindre le robot quand la communication est perdue
+    if (cpt = 3)
+    {
+        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+        robotStarted = 0;
+        rt_mutex_release(&mutex_robotStarted);
+    } 
+}
+
+
+// END INSA

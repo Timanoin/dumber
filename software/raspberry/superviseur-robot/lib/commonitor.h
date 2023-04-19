@@ -32,7 +32,8 @@ using namespace std;
  * 
  */
 class ComMonitor {
-public:
+
+    public:
     /**
      * Constructor
      */
@@ -72,10 +73,7 @@ public:
      * @warning Write is not thread safe : check that multiple tasks can't access this method simultaneously  
      */
     void Write(Message *msg);
-    
-    // INSA
-    void checkMsgError(Message* msg);
-    // END INSA
+
 
     /**
      * Function called at beginning of Write method
