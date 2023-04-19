@@ -147,6 +147,10 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    if (err = rt_task_create(&th_refreshWD, "th_refreshWD", 0, PRIORITY_TREFRESHWD, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
 
 
     // END custom tasks
@@ -202,6 +206,10 @@ void Tasks::Run() {
     }
     // Start robot with Watchdog (11)
     if (err = rt_task_start(&th_startRobotWD, (void(*)(void*)) & Tasks::StartRobotTaskWD, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    if (err = rt_task_start(&th_refreshWD, (void(*)(void*)) & Tasks::RefreshWD, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -518,3 +526,7 @@ void Tasks::StartRobotTaskWD(void *arg) {
         }
     }
 }
+
+
+
+void Tasks::
