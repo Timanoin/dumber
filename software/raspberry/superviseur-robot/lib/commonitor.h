@@ -73,6 +73,10 @@ public:
      */
     void Write(Message *msg);
     
+    // INSA
+    void checkMsgError(Message* msg);
+    // END INSA
+
     /**
      * Function called at beginning of Write method
      * Use it to do some synchronization (call of mutex, for example)

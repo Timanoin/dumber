@@ -32,6 +32,7 @@
 #define PRIORITY_TBATTERYLEVEL 30
 #define PRIORITY_TSTARTROBOTWD 20
 #define PRIORITY_TRELOADWD 31
+#define PRIORITY_TRELOADC3 31
 
 // END CONSTANTS
 
@@ -566,3 +567,4 @@ void Tasks::ReloadWD(void *arg) {
         }
     }
 }
+
