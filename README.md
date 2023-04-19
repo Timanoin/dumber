@@ -14,7 +14,7 @@ Fonctionnalités demandées :
 *b. Compteur à trois (fonctionnalités 8-9)*
 *c. Watchdog (fonctionnalité 11)*
 *d. Batterie (fonctionnalité 13)*
-e. Caméra (envoie périodique + open/close) (fonctionnalités15)
-f.  Arène (fonctionnalité 16)
-g. Position (fonctionnalité 17)
+e. Caméra (envoie périodique + open/close) (fonctionnalités 14-15-16)
+f.  Arène (fonctionnalité 17)
+g. Position (fonctionnalité 18-19)
 
