@@ -157,7 +157,7 @@ private:
     Message *ReadInQueue(RT_QUEUE *queue);
 
     void UpdateBatteryLevel(void *arg);
-    // void StartRobotTaskWD(void *arg);
+    void StartRobotTaskWD(void *arg);
 
 };
 
