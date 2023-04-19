@@ -78,7 +78,8 @@ private:
     RT_TASK th_move;
     // INSA Custom tasks
     RT_TASK th_updateBatteryLevel;
-    // RT_TASK th_startRobotWD;
+    RT_TASK th_startRobotWD;
+    RT_TASK th_reloadWD;
     // INSA End custom tasks
     
     /**********************************************************************/
@@ -97,7 +98,7 @@ private:
     RT_SEM sem_serverOk;
     RT_SEM sem_startRobot;
     // INSA Cutom Semaphores
-    // RT_SEM sem_startRobotWD;
+    RT_SEM sem_startRobotWD;
     // END INSA
 
     /**********************************************************************/
