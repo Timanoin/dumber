@@ -82,6 +82,12 @@ void Tasks::Init() {
         cerr << "Error mutex create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // INSA MUTEX
+    if (err = rt_mutex_create(&mutex_camera, NULL)) {
+        cerr << "Error mutex create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    // END INSA
     cout << "Mutexes created successfully" << endl << flush;
 
     /**************************************************************************************/
@@ -592,6 +598,27 @@ void Tasks::checkWriteError(Message* msg)
         rt_mutex_release(&mutex_robotStarted);
     } 
     
+}
+
+// Fonctionnalité 14
+// Allume la caméra
+void Tasks::OpenCamera(void *args)
+{
+
+}
+
+// Fonctionnalité 15
+// La camera envoie une image au moniteur
+void Tasks::CameraSendImage(void *args)
+{
+
+}
+
+// Fonctionnalité 16
+// Eteint la caméra
+void Tasks::CloseCamera(void *args)
+{
+
 }
 
 

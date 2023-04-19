@@ -90,6 +90,7 @@ private:
     RT_MUTEX mutex_robot;
     RT_MUTEX mutex_robotStarted;
     RT_MUTEX mutex_move;
+    RT_MUTEX mutex_camera;
 
     /**********************************************************************/
     /* Semaphores                                                         */
@@ -165,6 +166,19 @@ private:
     void ReloadWD(void *arg);
 
     void checkWriteError(Message* msg);
+
+    // Fonctionnalité 14
+    // Allume la caméra
+    void Tasks::OpenCamera(void *args);
+
+    // Fonctionnalité 15
+    // La camera envoie une image au moniteur
+    void Tasks::CameraSendImage(void *args);
+
+    // Fonctionnalité 16
+    // Eteint la caméra
+    void Tasks::CloseCamera(void *args);
+
     // END INSA
 
 };
