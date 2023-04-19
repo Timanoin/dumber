@@ -198,7 +198,7 @@ Message *ComMonitor::Read() {
 
     // Call user method after read
     Read_Post();
-
+    if (*msg == MESSAGE_MONITOR_LOST) cout << endl << "/!\\ Error : connection with monitor lost.";
     return msg;
 }
 
