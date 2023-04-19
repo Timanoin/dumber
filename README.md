@@ -9,9 +9,10 @@ Depot du projet de temps reel 4eme année au departement GEI de l'INSA Toulouse.
 - aruco_markers: Script de generation des tags (aruco) utilisés sur les robots
 
 Fonctionnalités demandées :
-a. Reprise de la communication entre le Superviseur et le Moniteur après la perte (fonctionnalités 5-6)
-b. Compteur à trois (fonctionnalités 8-9)
-*c. Watchdog (fonctionnalité 11)
+*a. Reprise de la communication entre le Superviseur et le Moniteur après la perte (fonctionnalités 5)*
+-6 TODO
+*b. Compteur à trois (fonctionnalités 8-9)*
+*c. Watchdog (fonctionnalité 11)*
 *d. Batterie (fonctionnalité 13)*
 e. Caméra (envoie périodique + open/close) (fonctionnalités15)
 f.  Arène (fonctionnalité 16)
