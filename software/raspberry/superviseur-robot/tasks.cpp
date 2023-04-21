@@ -385,10 +385,10 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
            rt_sem_v(&sem_startRobotWD);
         } 
-        else if (msgRcv->CompareID(MESSAGE_MONITOR_CAMERA_OPEN)) {
+        else if (msgRcv->CompareID(MESSAGE_CAMERA_OPEN)) {
            rt_sem_v(&sem_openCamera);
         }
-        else if (msgRcv->CompareID(MESSAGE_MONITOR_CAMERA_CLOSE)) {
+        else if (msgRcv->CompareID(MESSAGE_CAMERA_CLOSE)) {
            rt_sem_v(&sem_closeCamera);
         }
         // END INSA
@@ -658,7 +658,7 @@ void Tasks::OpenCamera(void *args)
     while (1) {
         rt_sem_p(&sem_openCamera, TM_INFINITE);
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-        co = camera.isOpen();
+        co = camera.IsOpen();
         rt_mutex_release(&mutex_camera);
         if (!co)
         {
@@ -684,8 +684,7 @@ void Tasks::OpenCamera(void *args)
 // Periodic task of period 100ms that sends an image from the camera to the monitor
 void Tasks::CameraSendImage(void *args)
 {
-    bool co = 0; // camera open ?
-    Img img;    
+    bool co = 0; // camera open ?   
     // Block while resources arent ready
     rt_sem_p(&sem_barrier, TM_INFINITE);
     // Task of period 100ms
@@ -700,10 +699,10 @@ void Tasks::CameraSendImage(void *args)
         if (co) {
             // Grab an image from the camera
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-            img = camera.Grab();
+            Img image = camera.Grab();
             rt_mutex_release(&mutex_camera);
             // Send image to the monitor
-            MessageImg msgimg = MessageImg(&img, MESSAGE_CAM_IMAGE); 
+            MessageImg msgimg = MessageImg(&image, MESSAGE_CAM_IMAGE); 
             rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
             monitor.Write(&msgimg);
             rt_mutex_release(&mutex_monitor);
@@ -716,11 +715,11 @@ void Tasks::CameraSendImage(void *args)
 // Task that turns the camera off
 void Tasks::CloseCamera(void *args)
 {
-    bool co = 0;
+    bool co = 0;l
     rt_sem_p(&sem_barrier, TM_INFINITE);
     
     while (1) {
-        rt_sem_p(&sem_closeCamera, TM_INFINITE)
+        rt_sem_p(&sem_closeCamera, TM_INFINITE);
         cout << endl << "Closing camera" << endl;
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
         co = camera.IsOpen();
