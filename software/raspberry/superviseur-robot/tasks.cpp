@@ -34,7 +34,7 @@
 #define PRIORITY_TRELOADWD 31
 
 #define PRIORITY_TOPENCAMERA 28
-#define PRIORITY_TCAMERASENDIMAGE 27
+#define PRIORITY_TCAMERASENDIMAGE 21
 #define PRIORITY_TCLOSECAMERA 28
 
 // END CONSTANTS
@@ -710,8 +710,6 @@ void Tasks::CameraSendImage(void *args)
             // Send message to monitor with battery level
             WriteInQueue(&q_messageToMon, msgimg);
             cout << endl << "Sending Image.........." << endl;
-            delete msgimg;
-            delete image;
         }
     }
 }
