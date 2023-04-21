@@ -65,10 +65,13 @@ private:
     ComMonitor monitor;
     ComRobot robot;
     int robotStarted = 0;
-    int cpt = 0;
     int move = MESSAGE_ROBOT_STOP;
     // INSA
+    int cpt = 0;
     Camera* camera;
+    bool sendingImage;
+    Arena* arena;
+    Arena* tmp_arena
     // END INSA
     
     /**********************************************************************/
@@ -80,6 +83,7 @@ private:
     RT_TASK th_openComRobot;
     RT_TASK th_startRobot;
     RT_TASK th_move;
+
     // INSA Custom tasks
     RT_TASK th_updateBatteryLevel;
     RT_TASK th_startRobotWD;
@@ -96,6 +100,7 @@ private:
     RT_MUTEX mutex_robot;
     RT_MUTEX mutex_robotStarted;
     RT_MUTEX mutex_move;
+
     // INSA custom mutex
     RT_MUTEX mutex_camera;
     // END INSA
@@ -107,6 +112,7 @@ private:
     RT_SEM sem_openComRobot;
     RT_SEM sem_serverOk;
     RT_SEM sem_startRobot;
+
     // INSA Cutom Semaphores
     RT_SEM sem_startRobotWD;
     RT_SEM sem_closeCamera;
@@ -198,6 +204,10 @@ private:
     // Feature 16
     // Task that turns the camera off   
     void CloseCamera(void *args);
+
+    // Feature 17 
+    // Task that tries to find the arena
+    void FindArena(void *args);
 
     // END INSA
 

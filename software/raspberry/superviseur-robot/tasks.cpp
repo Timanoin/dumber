@@ -395,6 +395,14 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         else if (msgRcv->CompareID(MESSAGE_CAM_CLOSE)) {
            rt_sem_v(&sem_closeCamera);
         }
+        else if (msgRcv->CompareID(MESSAGE_CAM_ARENA_CONFIRM)) {
+            arena = tmp_arena;
+            sendingImage = true;
+        }
+        else if (msgRcv->CompareID(MESSAGE_CAM_ARENA_INFIRM)) {
+            arena = nullptr;
+            sendingImage = true;
+        }
         // END INSA
         delete(msgRcv); // mus be deleted manually, no consumer
     }
@@ -672,6 +680,7 @@ void Tasks::OpenCamera(void *args)
             success = camera->Open();
             rt_mutex_release(&mutex_camera);
             if (success) {
+                sendingImage = true;
                 cout << endl << "Camera Open !" << endl;
             }
             else {
@@ -700,14 +709,19 @@ void Tasks::CameraSendImage(void *args)
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
         co = camera->IsOpen();
         rt_mutex_release(&mutex_camera);
-        if (co) {
+        if (co && sendingImage) {
             // Grab an image from the camera
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
             Img* image = new Img(camera->Grab());
             rt_mutex_release(&mutex_camera);
+            // Add arena
+            if (arena != nullptr)
+            {
+                image->DrawArena(*arena);
+            }
             // Send image to the monitor
             MessageImg* msgimg = new MessageImg(MESSAGE_CAM_IMAGE, image); 
-            // Send message to monitor with battery level
+            // Send message to monitor with image
             WriteInQueue(&q_messageToMon, msgimg);
             cout << endl << "Sending Image.........." << endl;
         }
@@ -734,10 +748,45 @@ void Tasks::CloseCamera(void *args)
             if (co){
                 cout << endl << "Camera not closed" << endl;
             } else {
+                sendingImage = false;
                 cout << endl << "Camera closed" << endl;
             }
         }
     }
 }
 
+// Feature 17 
+// Task that tries to find the arena
+void Tasks::FindArena(void *args)
+{   
+    bool co = 0;
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    while (1) {
+        rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+        co = camera->IsOpen();
+        rt_mutex_release(&mutex_camera);
+        if (co)
+        {
+            sendingImage = false;
+            // Grab an image from the camera
+            rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+            Img* image = new Img(camera->Grab());
+            rt_mutex_release(&mutex_camera);
+            tmp_arena = new Arena(image->SearchArena());
+            if (*tmp_arena == NULL)
+            {
+                monitor.Write(&Message(MESSAGE_ANSWER_NACK));
+            } else {
+                // draw the arena on the image
+                image->DrawArena(*tmp_arena);
+                // send the image with the arena
+                MessageImg* msgimg = new MessageImg(MESSAGE_CAM_IMAGE, image); 
+                WriteInQueue(&q_messageToMon, msgimg);
+            }
+        } else {
+            cout << endl << "Camera is not open" << endl;
+        }
+    }
+}
+                
 // END INSA
