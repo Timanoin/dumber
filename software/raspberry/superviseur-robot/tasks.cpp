@@ -136,6 +136,10 @@ void Tasks::Init() {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    if (err = rt_sem_create(&sem_findArena, NULL, 1, S_FIFO)) {
+        cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
 
     // End
     cout << "Semaphores created successfully" << endl << flush;
@@ -405,6 +409,9 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_CLOSE)) {
            rt_sem_v(&sem_closeCamera);
+        }
+        else if (msgRcv->CompareID(MESSAGE_CAM_ASK_ARENA)) {
+            rt_sem_v(&sem_findArena);
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_ARENA_CONFIRM)) {
             arena = tmp_arena;
@@ -773,6 +780,7 @@ void Tasks::FindArena(void *args)
     bool co = 0;
     rt_sem_p(&sem_barrier, TM_INFINITE);
     while (1) {
+        rt_sem_p(&sem_findArena, TM_INFINITE);
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
         co = camera->IsOpen();
         rt_mutex_release(&mutex_camera);

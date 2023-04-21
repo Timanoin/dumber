@@ -118,6 +118,7 @@ private:
     RT_SEM sem_startRobotWD;
     RT_SEM sem_closeCamera;
     RT_SEM sem_openCamera;
+    RT_SEM sem_findArena;
     // END INSA
 
     /**********************************************************************/
