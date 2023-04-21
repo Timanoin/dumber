@@ -703,9 +703,8 @@ void Tasks::CameraSendImage(void *args)
             rt_mutex_release(&mutex_camera);
             // Send image to the monitor
             MessageImg msgimg = MessageImg(MESSAGE_CAM_IMAGE, &image); 
-            rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
-            monitor.Write(&msgimg);
-            rt_mutex_release(&mutex_monitor);
+            // Send message to monitor with battery level
+            WriteInQueue(&q_messageToMon, &msgimg);
             cout << endl << "Sending Image.........." << endl;
         }
     }
