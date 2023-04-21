@@ -67,6 +67,9 @@ private:
     int robotStarted = 0;
     int cpt = 0;
     int move = MESSAGE_ROBOT_STOP;
+    // INSA
+    Camera camera(sm,5);
+    // END INSA
     
     /**********************************************************************/
     /* Tasks                                                              */
@@ -90,7 +93,9 @@ private:
     RT_MUTEX mutex_robot;
     RT_MUTEX mutex_robotStarted;
     RT_MUTEX mutex_move;
+    // INSA custom mutex
     RT_MUTEX mutex_camera;
+    // END INSA
 
     /**********************************************************************/
     /* Semaphores                                                         */
@@ -101,6 +106,8 @@ private:
     RT_SEM sem_startRobot;
     // INSA Cutom Semaphores
     RT_SEM sem_startRobotWD;
+    RT_SEM sem_closeCamera;
+    RT_SEM sem_openCamera;
     // END INSA
 
     /**********************************************************************/
@@ -161,22 +168,32 @@ private:
 
     // INSA
 
+    // Feature 13
+    // Display battery level
     void UpdateBatteryLevel(void *arg);
+
+    // Feature 11 
+    // Task that starts the robot with the watchdog on
     void StartRobotTaskWD(void *arg);
+
+    // Feature 11 
+    // Periodic task of period 1s that reloads the watchdog counter
     void ReloadWD(void *arg);
 
+    // Features 8&9
+    // Get message from the robot when writing and manages a 3 counter
     void checkWriteError(Message* msg);
 
-    // Fonctionnalité 14
-    // Allume la caméra
+    // Feature 14
+    // Task that turns the camera on
     void Tasks::OpenCamera(void *args);
 
-    // Fonctionnalité 15
-    // La camera envoie une image au moniteur
+    // Feature 15
+    // Task that makes the camera an image to the monitor
     void Tasks::CameraSendImage(void *args);
 
-    // Fonctionnalité 16
-    // Eteint la caméra
+    // Feature 16
+    // Task that turns the camera off   
     void Tasks::CloseCamera(void *args);
 
     // END INSA

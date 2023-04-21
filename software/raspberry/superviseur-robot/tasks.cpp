@@ -114,7 +114,12 @@ void Tasks::Init() {
 
     // Watchdog(11)
 
-    if (err = rt_sem_create(&sem_startRobotWD, NULL, 0, S_FIFO)) {
+    if (err = rt_sem_create(&sem_startRobotWD, NULL, 1, S_FIFO)) {
+        cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    // Close Camera(16)
+    if (err = rt_sem_create(&sem_closeCamera, NULL, 1, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -334,10 +339,6 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_sem_v(&sem_openComRobot);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITHOUT_WD)) {
             rt_sem_v(&sem_startRobot);
-        // INSA Start robot with watchdog
-        } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
-           rt_sem_v(&sem_startRobotWD);
-        // END INSA
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_GO_FORWARD) ||
                 msgRcv->CompareID(MESSAGE_ROBOT_GO_BACKWARD) ||
                 msgRcv->CompareID(MESSAGE_ROBOT_GO_LEFT) ||
@@ -347,7 +348,17 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_mutex_acquire(&mutex_move, TM_INFINITE);
             move = msgRcv->GetID();
             rt_mutex_release(&mutex_move);
+        // INSA Start robot with watchdog
+        } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
+           rt_sem_v(&sem_startRobotWD);
+        } 
+        else if (msgRcv->CompareID(MONITOR_CAMERA_OPEN)) {
+           rt_sem_v(&sem_openCamera);
         }
+        else if (msgRcv->CompareID(MONITOR_CAMERA_CLOSE)) {
+           rt_sem_v(&sem_closeCamera);
+        }
+        // END INSA
         delete(msgRcv); // mus be deleted manually, no consumer
     }
 }
@@ -489,6 +500,9 @@ Message *Tasks::ReadInQueue(RT_QUEUE *queue) {
     return msg;
 }
 
+// INSA Tasks
+
+// Feature 13
 // Display battery level
 void Tasks::UpdateBatteryLevel(void *arg)
 {
@@ -519,6 +533,8 @@ void Tasks::UpdateBatteryLevel(void *arg)
     }
 }
 
+// Feature 11 
+// Task that starts the robot with the watchdog on
 void Tasks::StartRobotTaskWD(void *arg) {
     cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
     // Synchronization barrier (waiting that all tasks are starting)
@@ -551,7 +567,8 @@ void Tasks::StartRobotTaskWD(void *arg) {
     }
 }
 
-
+// Feature 11 
+// Periodic task of period 1s that reloads the watchdog counter
 void Tasks::ReloadWD(void *arg) {
     int rs;
     // Block while resources arent ready
@@ -576,8 +593,8 @@ void Tasks::ReloadWD(void *arg) {
     }
 }
 
-// Fonctionnalites 8&9
-// Recupere le message d'erreur (ou pas) du robot alors de l'ecriture et gere un compteur a trois
+// Features 8&9
+// Get message from the robot when writing and manages a 3 counter
 void Tasks::checkWriteError(Message* msg)
 {
     // Compteur a trois
@@ -596,30 +613,96 @@ void Tasks::checkWriteError(Message* msg)
         rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
         robotStarted = 0;
         rt_mutex_release(&mutex_robotStarted);
-    } 
-    
+    }    
 }
 
-// Fonctionnalité 14
-// Allume la caméra
+// Feature 14
+// Task that turns the camera on
 void Tasks::OpenCamera(void *args)
-{
-
+{   
+    bool co, success = 0;
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    while (1) {
+        rt_sem_p(&sem_openCamera, TM_INFINITE);
+        rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+        co = camera.isOpen();
+        rt_mutex_release(&mutex_camera);
+        if (!co)
+        {
+            cout << endl << "Opening camera" << endl;
+            // Check if the camera is started 
+            rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+            success = camera.Open();
+            rt_mutex_release(&mutex_camera);
+            if (success) {
+                cout << endl << "Camera Open !" << endl;
+            }
+            else {
+                cout << endl << "Open camera failed" << endl;
+            }
+        } else {
+            cout << endl << "Camera is already open" << endl;
+        }
+    }
 }
 
-// Fonctionnalité 15
-// La camera envoie une image au moniteur
+
+// Feature 15
+// Periodic task of period 100ms that sends an image from the camera to the monitor
 void Tasks::CameraSendImage(void *args)
 {
-
+    bool co = 0; // camera open ?
+    Img img;    
+    // Block while resources arent ready
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    // Task of period 100ms
+    rt_task_set_periodic(NULL, TM_NOW, 100000000);
+    while (1) {
+        // Wait for period
+        rt_task_wait_period(NULL);
+        // Check if the camera is started 
+        rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+        co = camera.isOpen();
+        rt_mutex_release(&mutex_camera);
+        if (co) {
+            // Grab an image from the camera
+            rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+            image = camera.Grab();
+            rt_mutex_release(&mutex_camera);
+            // Send image to the monitor
+            MessageImage mi(&image, MESSAGE_CAM_IMAGE); 
+            rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
+            monitor.Write(&mi);
+            rt_mutex_release(&mutex_monitor);
+        }
+    }
 }
 
-// Fonctionnalité 16
-// Eteint la caméra
+// Feature 16
+// Task that turns the camera off
 void Tasks::CloseCamera(void *args)
 {
-
+    bool co = 0;
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    
+    while (1) {
+        rt_sem_p(&sem_closeCamera, TW_INFINITE)
+        cout << endl << "Closing camera" << endl;
+        rt_mutex_acquire(&mutex_camera TM_INFINITE);
+        co = camera.IsOpen();
+        rt_mutex_release(&mutex_camera);
+        if (co){
+            rt_mutex_acquire(&mutex_camera TM_INFINITE);
+            camera.close();
+            co = camera.IsOpen();
+            rt_mutex_release(&mutex_camera);
+            if (co){
+                cout << endl << "Camera not closed" << endl;
+            } else {
+                cout << endl << "Camera closed" << endl;
+            }
+        }
+    }
 }
-
 
 // END INSA
