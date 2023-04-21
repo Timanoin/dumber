@@ -68,7 +68,7 @@ private:
     int cpt = 0;
     int move = MESSAGE_ROBOT_STOP;
     // INSA
-    Camera camera(Camera::sm,5);
+    Camera camera(1, 5);
     // END INSA
     
     /**********************************************************************/
@@ -84,6 +84,9 @@ private:
     RT_TASK th_updateBatteryLevel;
     RT_TASK th_startRobotWD;
     RT_TASK th_reloadWD;
+    RT_TASK th_openCamera;
+    RT_TASK th_cameraSendImage;
+    RT_TASK th_closeCamera;
     // INSA End custom tasks
     
     /**********************************************************************/
