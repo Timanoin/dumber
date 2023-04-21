@@ -68,7 +68,7 @@ private:
     int cpt = 0;
     int move = MESSAGE_ROBOT_STOP;
     // INSA
-    Camera camera(sm,5);
+    Camera camera(Camera::sm,5);
     // END INSA
     
     /**********************************************************************/
@@ -186,15 +186,15 @@ private:
 
     // Feature 14
     // Task that turns the camera on
-    void Tasks::OpenCamera(void *args);
+    void OpenCamera(void *args);
 
     // Feature 15
     // Task that makes the camera an image to the monitor
-    void Tasks::CameraSendImage(void *args);
+    void CameraSendImage(void *args);
 
     // Feature 16
     // Task that turns the camera off   
-    void Tasks::CloseCamera(void *args);
+    void CloseCamera(void *args);
 
     // END INSA
 
