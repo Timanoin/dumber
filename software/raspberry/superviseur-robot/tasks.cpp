@@ -385,10 +385,10 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
            rt_sem_v(&sem_startRobotWD);
         } 
-        else if (msgRcv->CompareID(MESSAGE_CAMERA_OPEN)) {
+        else if (msgRcv->CompareID(MESSAGE_CAM_OPEN)) {
            rt_sem_v(&sem_openCamera);
         }
-        else if (msgRcv->CompareID(MESSAGE_CAMERA_CLOSE)) {
+        else if (msgRcv->CompareID(MESSAGE_CAM_CLOSE)) {
            rt_sem_v(&sem_closeCamera);
         }
         // END INSA
@@ -702,7 +702,7 @@ void Tasks::CameraSendImage(void *args)
             Img image = camera.Grab();
             rt_mutex_release(&mutex_camera);
             // Send image to the monitor
-            MessageImg msgimg = MessageImg(&image, MESSAGE_CAM_IMAGE); 
+            MessageImg msgimg = MessageImg(MESSAGE_CAM_IMAGE, &image); 
             rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
             monitor.Write(&msgimg);
             rt_mutex_release(&mutex_monitor);
@@ -715,7 +715,7 @@ void Tasks::CameraSendImage(void *args)
 // Task that turns the camera off
 void Tasks::CloseCamera(void *args)
 {
-    bool co = 0;l
+    bool co = 0;
     rt_sem_p(&sem_barrier, TM_INFINITE);
     
     while (1) {
