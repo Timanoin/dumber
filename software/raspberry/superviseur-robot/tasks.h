@@ -68,7 +68,7 @@ private:
     int cpt = 0;
     int move = MESSAGE_ROBOT_STOP;
     // INSA
-    Camera camera = Camera(1, 5);
+    Camera* camera;
     // END INSA
     
     /**********************************************************************/

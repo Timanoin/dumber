@@ -66,6 +66,10 @@ void Tasks::Init() {
     int status;
     int err;
 
+    // INSA
+    camera = new Camera(1,5);
+    // END INSA
+
     /**************************************************************************************/
     /* 	Mutex creation                                                                    */
     /**************************************************************************************/
@@ -658,14 +662,14 @@ void Tasks::OpenCamera(void *args)
     while (1) {
         rt_sem_p(&sem_openCamera, TM_INFINITE);
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-        co = camera.IsOpen();
+        co = camera->IsOpen();
         rt_mutex_release(&mutex_camera);
         if (!co)
         {
             cout << endl << "Opening camera" << endl;
             // Check if the camera is started 
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-            success = camera.Open();
+            success = camera->Open();
             rt_mutex_release(&mutex_camera);
             if (success) {
                 cout << endl << "Camera Open !" << endl;
@@ -694,12 +698,12 @@ void Tasks::CameraSendImage(void *args)
         rt_task_wait_period(NULL);
         // Check if the camera is started 
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-        co = camera.IsOpen();
+        co = camera->IsOpen();
         rt_mutex_release(&mutex_camera);
         if (co) {
             // Grab an image from the camera
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-            Img image = camera.Grab();
+            Img image = camera->Grab();
             rt_mutex_release(&mutex_camera);
             // Send image to the monitor
             MessageImg msgimg = MessageImg(MESSAGE_CAM_IMAGE, &image); 
@@ -721,12 +725,12 @@ void Tasks::CloseCamera(void *args)
         rt_sem_p(&sem_closeCamera, TM_INFINITE);
         cout << endl << "Closing camera" << endl;
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-        co = camera.IsOpen();
+        co = camera->IsOpen();
         rt_mutex_release(&mutex_camera);
         if (co){
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-            camera.Close();
-            co = camera.IsOpen();
+            camera->Close();
+            co = camera->IsOpen();
             rt_mutex_release(&mutex_camera);
             if (co){
                 cout << endl << "Camera not closed" << endl;
