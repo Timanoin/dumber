@@ -385,10 +385,10 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
            rt_sem_v(&sem_startRobotWD);
         } 
-        else if (msgRcv->CompareID(MONITOR_CAMERA_OPEN)) {
+        else if (msgRcv->CompareID(MESSAGE_MONITOR_CAMERA_OPEN)) {
            rt_sem_v(&sem_openCamera);
         }
-        else if (msgRcv->CompareID(MONITOR_CAMERA_CLOSE)) {
+        else if (msgRcv->CompareID(MESSAGE_MONITOR_CAMERA_CLOSE)) {
            rt_sem_v(&sem_closeCamera);
         }
         // END INSA
@@ -695,18 +695,19 @@ void Tasks::CameraSendImage(void *args)
         rt_task_wait_period(NULL);
         // Check if the camera is started 
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-        co = camera.isOpen();
+        co = camera.IsOpen();
         rt_mutex_release(&mutex_camera);
         if (co) {
             // Grab an image from the camera
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-            image = camera.Grab();
+            img = camera.Grab();
             rt_mutex_release(&mutex_camera);
             // Send image to the monitor
-            MessageImage mi(&image, MESSAGE_CAM_IMAGE); 
+            MessageImg msgimg = MessageImg(&img, MESSAGE_CAM_IMAGE); 
             rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
-            monitor.Write(&mi);
+            monitor.Write(&msgimg);
             rt_mutex_release(&mutex_monitor);
+            cout << endl << "Sending Image.........." << endl;
         }
     }
 }
@@ -719,14 +720,14 @@ void Tasks::CloseCamera(void *args)
     rt_sem_p(&sem_barrier, TM_INFINITE);
     
     while (1) {
-        rt_sem_p(&sem_closeCamera, TW_INFINITE)
+        rt_sem_p(&sem_closeCamera, TM_INFINITE)
         cout << endl << "Closing camera" << endl;
-        rt_mutex_acquire(&mutex_camera TM_INFINITE);
+        rt_mutex_acquire(&mutex_camera, TM_INFINITE);
         co = camera.IsOpen();
         rt_mutex_release(&mutex_camera);
         if (co){
-            rt_mutex_acquire(&mutex_camera TM_INFINITE);
-            camera.close();
+            rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+            camera.Close();
             co = camera.IsOpen();
             rt_mutex_release(&mutex_camera);
             if (co){
