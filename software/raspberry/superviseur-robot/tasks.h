@@ -71,7 +71,7 @@ private:
     Camera* camera;
     bool sendingImage;
     Arena* arena;
-    Arena* tmp_arena
+    Arena* tmp_arena;
     // END INSA
     
     /**********************************************************************/
@@ -91,6 +91,7 @@ private:
     RT_TASK th_openCamera;
     RT_TASK th_cameraSendImage;
     RT_TASK th_closeCamera;
+    RT_TASK th_findArena;
     // INSA End custom tasks
     
     /**********************************************************************/

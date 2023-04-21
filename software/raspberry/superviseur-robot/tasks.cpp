@@ -37,6 +37,8 @@
 #define PRIORITY_TCAMERASENDIMAGE 21
 #define PRIORITY_TCLOSECAMERA 28
 
+#define PRIORITY_TFINDARENA 18
+
 // END CONSTANTS
 
 /*
@@ -195,7 +197,10 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-
+    if (err = rt_task_create(&th_findArena, "th_findArena", 0, PRIORITY_TFINDARENA, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
 
     // END custom tasks
     cout << "Tasks created successfully" << endl << flush;
@@ -273,6 +278,12 @@ void Tasks::Run() {
         exit(EXIT_FAILURE);
     }
     if (err = rt_task_start(&th_closeCamera, (void(*)(void*)) & Tasks::CloseCamera, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+
+    // Draw arena (17)
+    if (err = rt_task_start(&th_findArena, (void(*)(void*)) & Tasks::findArena, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
