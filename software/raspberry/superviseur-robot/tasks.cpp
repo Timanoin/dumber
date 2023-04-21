@@ -703,13 +703,15 @@ void Tasks::CameraSendImage(void *args)
         if (co) {
             // Grab an image from the camera
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
-            Img image = camera->Grab();
+            Img* image = new Img(camera->Grab());
             rt_mutex_release(&mutex_camera);
             // Send image to the monitor
-            MessageImg msgimg = MessageImg(MESSAGE_CAM_IMAGE, &image); 
+            MessageImg* msgimg = new MessageImg(MESSAGE_CAM_IMAGE, image); 
             // Send message to monitor with battery level
-            WriteInQueue(&q_messageToMon, &msgimg);
+            WriteInQueue(&q_messageToMon, msgimg);
             cout << endl << "Sending Image.........." << endl;
+            delete msgimg;
+            delete image;
         }
     }
 }
@@ -719,8 +721,7 @@ void Tasks::CameraSendImage(void *args)
 void Tasks::CloseCamera(void *args)
 {
     bool co = 0;
-    rt_sem_p(&sem_barrier, TM_INFINITE);
-    
+    rt_sem_p(&sem_barrier, TM_INFINITE);  
     while (1) {
         rt_sem_p(&sem_closeCamera, TM_INFINITE);
         cout << endl << "Closing camera" << endl;
