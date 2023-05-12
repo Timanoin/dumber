@@ -287,7 +287,7 @@ void Tasks::Run() {
     }
 
     // Draw arena (17)
-    if (err = rt_task_start(&th_findArena, (void(*)(void*)) & Tasks::findArena, this)) {
+    if (err = rt_task_start(&th_findArena, (void(*)(void*)) & Tasks::FindArena, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -792,9 +792,10 @@ void Tasks::FindArena(void *args)
             Img* image = new Img(camera->Grab());
             rt_mutex_release(&mutex_camera);
             tmp_arena = new Arena(image->SearchArena());
-            if (*tmp_arena == NULL)
+            if (tmp_arena->isEmpty())
             {
-                monitor.Write(&Message(MESSAGE_ANSWER_NACK));
+                Message* msg_nack = new Message(MESSAGE_ANSWER_NACK); 
+                monitor.Write(msg_nack);
             } else {
                 // Draw the arena on the image
                 image->DrawArena(*tmp_arena);
