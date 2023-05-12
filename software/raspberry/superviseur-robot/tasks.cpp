@@ -125,32 +125,32 @@ void Tasks::Init() {
 
     // Watchdog(11)
 
-    if (err = rt_sem_create(&sem_startRobotWD, NULL, 1, S_FIFO)) {
+    if (err = rt_sem_create(&sem_startRobotWD, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
     // Close Camera(16)
-    if (err = rt_sem_create(&sem_closeCamera, NULL, 1, S_FIFO)) {
+    if (err = rt_sem_create(&sem_closeCamera, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
     // Open Camera (14)
-    if (err = rt_sem_create(&sem_openCamera, NULL, 1, S_FIFO)) {
+    if (err = rt_sem_create(&sem_openCamera, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
     // Find Arena (17)
-    if (err = rt_sem_create(&sem_findArena, NULL, 1, S_FIFO)) {
+    if (err = rt_sem_create(&sem_findArena, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
     // Request Position (18)
-    if (err = rt_sem_create(&sem_reqPosition, NULL, 1, S_FIFO)) {
+    if (err = rt_sem_create(&sem_reqPosition, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
     // Stop Requesting Position (19)
-    if (err = rt_sem_create(&sem_stopPosition, NULL, 1, S_FIFO)) {
+    if (err = rt_sem_create(&sem_stopPosition, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -421,7 +421,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             exit(-1);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_COM_OPEN)) {
             rt_sem_v(&sem_openComRobot);
-        } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITHOUT_WD)) {
+        } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITHOUT_WD)) {Open
             rt_sem_v(&sem_startRobot);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_GO_FORWARD) ||
                 msgRcv->CompareID(MESSAGE_ROBOT_GO_BACKWARD) ||
