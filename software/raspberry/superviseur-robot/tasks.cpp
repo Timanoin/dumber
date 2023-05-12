@@ -142,7 +142,6 @@ void Tasks::Init() {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-    /*
     // Request Position (18)
     if (err = rt_sem_create(&sem_reqPosition, NULL, 1, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
@@ -153,7 +152,6 @@ void Tasks::Init() {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-    */
     // End
     cout << "Semaphores created successfully" << endl << flush;
 
@@ -220,7 +218,6 @@ void Tasks::Init() {
         exit(EXIT_FAILURE);
     }
     // Position (18,19)
-    /*
     if (err = rt_task_create(&th_reqPosition, "th_reqPosition", 0, PRIORITY_TREQPOS, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -229,7 +226,6 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-    */
     // END custom tasks
 
     cout << "Tasks created successfully" << endl << flush;
@@ -318,7 +314,6 @@ void Tasks::Run() {
     }
 
     // Request position (18-19)
-    /*
     if (err = rt_task_start(&th_reqPosition, (void(*)(void*)) & Tasks::RequestPosition, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -327,7 +322,6 @@ void Tasks::Run() {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-    */
     // INSA End custom tasks
     cout << "Tasks launched" << endl << flush;
 }
@@ -457,8 +451,14 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             arena = nullptr;
             sendingImage = true;
         }
+        else if (msgRcv->CompareID(MESSAGE_CAM_POSITION_COMPUTE_START)) {
+           rt_sem_v(&sem_reqPosition);
+        }
+        else if (msgRcv->CompareID(MESSAGE_CAM_POSITION_COMPUTE_STOP)) {
+            rt_sem_v(&sem_stopPosition);
+        }
         // END INSA
-        delete(msgRcv); // mus be deleted manually, no consumer
+         delete(msgRcv); // mus be deleted manually, no consumer
     }
 }
 
@@ -768,16 +768,31 @@ void Tasks::CameraSendImage(void *args)
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
             Img* image = new Img(camera->Grab());
             rt_mutex_release(&mutex_camera);
-            // Add arena
+            // Add arena (17)
             if (arena != nullptr)
             {
                 image->DrawArena(*arena);
+                cout << endl << "Arena Drawn" << endl;
+                // Draw position of robots (18)
+                if (sendingPosition)
+                {
+                    std::list<Position> list = image->SearchRobot(*arena);
+                    for (std::list<Position>::iterator it = list.begin(); it != list.end(); it++)
+                    {
+                        image->DrawRobot(*it);
+                        MessagePosition* msgpos = new MessagePosition(MESSAGE_CAM_POSITION, *it);
+                        // Send message to monitor with position
+                        WriteInQueue(&q_messageToMon, msgpos);
+                    }
+                    cout << endl << "Found " << list.size() << " Robots, Sending Positions" << endl;
+                }
             }
             // Send image to the monitor
             MessageImg* msgimg = new MessageImg(MESSAGE_CAM_IMAGE, image); 
             // Send message to monitor with image
             WriteInQueue(&q_messageToMon, msgimg);
             cout << endl << "Sending Image.........." << endl;
+
         }
     }
 }
@@ -811,6 +826,7 @@ void Tasks::CloseCamera(void *args)
 
 // Feature 17 
 // Task that tries to find the arena
+
 void Tasks::FindArena(void *args)
 {   
     bool co = 0;
@@ -844,5 +860,30 @@ void Tasks::FindArena(void *args)
         }
     }
 }
-                
+
+// Feature 18
+// Task that turns the camera on
+
+void Tasks::RequestPosition(void *args)
+{   
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    while (1) {
+        rt_sem_p(&sem_reqPosition, TM_INFINITE);
+        if (!sendingPosition) sendingPosition = true;
+        cout << endl << "Requesting robot position" << endl;
+    }
+}
+// Feature 19
+// Task that stops the position
+
+void Tasks::StopPosition(void *args)
+{
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    while (1) {
+        rt_sem_p(&sem_reqPosition, TM_INFINITE);
+        if (sendingPosition) sendingPosition = false;
+        cout << endl << "Stop requesting robot position" << endl;
+    }
+}
+
 // END INSA

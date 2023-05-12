@@ -77,6 +77,8 @@ private:
     Arena* arena;
     // Temporary
     Arena* tmp_arena;
+    // Display or not the position of the robot
+    bool sendingPosition;
     // END INSA
     
     /**********************************************************************/
