@@ -792,7 +792,7 @@ void Tasks::FindArena(void *args)
             Img* image = new Img(camera->Grab());
             rt_mutex_release(&mutex_camera);
             tmp_arena = new Arena(image->SearchArena());
-            if (tmp_arena->isEmpty())
+            if (tmp_arena->IsEmpty())
             {
                 Message* msg_nack = new Message(MESSAGE_ANSWER_NACK); 
                 monitor.Write(msg_nack);
