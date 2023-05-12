@@ -784,7 +784,7 @@ void Tasks::CameraSendImage(void *args)
                         image->DrawRobot(*it);
                         MessagePosition* msgpos = new MessagePosition(MESSAGE_CAM_POSITION, *it);
                         // Send message to monitor with position
-                        WriteInQueue(&q_messageToMon, msgpos);
+                        monitor.Write(msgpos);
                     }
                     cout << endl << "Found " << list.size() << " Robots, Sending Positions" << endl;
                 }
