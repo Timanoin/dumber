@@ -881,7 +881,7 @@ void Tasks::StopPosition(void *args)
 {
     rt_sem_p(&sem_barrier, TM_INFINITE);
     while (1) {
-        rt_sem_p(&sem_reqPosition, TM_INFINITE);
+        rt_sem_p(&sem_stopPosition, TM_INFINITE);
         if (sendingPosition) sendingPosition = false;
         cout << endl << "Stop requesting robot position" << endl;
     }
