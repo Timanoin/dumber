@@ -67,10 +67,15 @@ private:
     int robotStarted = 0;
     int move = MESSAGE_ROBOT_STOP;
     // INSA
+    // Compteur à trois
     int cpt = 0;
+    // Camera
     Camera* camera;
+    // Blocks or unlocks the camera
     bool sendingImage;
+    // Current arena drawn on screen
     Arena* arena;
+    // Temporary
     Arena* tmp_arena;
     // END INSA
     

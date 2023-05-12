@@ -796,9 +796,9 @@ void Tasks::FindArena(void *args)
             {
                 monitor.Write(&Message(MESSAGE_ANSWER_NACK));
             } else {
-                // draw the arena on the image
+                // Draw the arena on the image
                 image->DrawArena(*tmp_arena);
-                // send the image with the arena
+                // Send the image with the arena to ask for confirmation
                 MessageImg* msgimg = new MessageImg(MESSAGE_CAM_IMAGE, image); 
                 WriteInQueue(&q_messageToMon, msgimg);
             }
