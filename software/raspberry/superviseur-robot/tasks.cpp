@@ -774,7 +774,6 @@ void Tasks::CameraSendImage(void *args)
             if (arena != nullptr)
             {
                 image->DrawArena(*arena);
-                cout << endl << "Arena Drawn" << endl;
                 // Draw position of robots (18)
                 if (sendingPosition)
                 {
@@ -784,9 +783,8 @@ void Tasks::CameraSendImage(void *args)
                         image->DrawRobot(*it);
                         MessagePosition* msgpos = new MessagePosition(MESSAGE_CAM_POSITION, *it);
                         // Send message to monitor with position
-                        monitor.Write(msgpos);
+                        WriteInQueue(&q_messageToMon, msgpos);
                     }
-                    cout << endl << "Found " << list.size() << " Robots, Sending Positions" << endl;
                 }
             }
             // Send image to the monitor
@@ -849,7 +847,7 @@ void Tasks::FindArena(void *args)
             if (tmp_arena->IsEmpty() || tmp_arena == nullptr)
             {
                 Message* msg_nack = new Message(MESSAGE_ANSWER_NACK); 
-                monitor.Write(msg_nack);
+                WriteInQueue(&q_messageToMon, msg_nack);
             } else {
                 // Draw the arena on the image
                 image->DrawArena(*tmp_arena);

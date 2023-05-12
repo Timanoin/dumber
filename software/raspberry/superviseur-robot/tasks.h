@@ -72,13 +72,13 @@ private:
     // Camera
     Camera* camera;
     // Blocks or unlocks the camera
-    bool sendingImage;
+    bool sendingImage = false;
     // Current arena drawn on screen
-    Arena* arena;
+    Arena* arena = nullptr;
     // Temporary
-    Arena* tmp_arena;
+    Arena* tmp_arena = nullptr;
     // Display or not the position of the robot
-    bool sendingPosition;
+    bool sendingPosition = false;
     // END INSA
     
     /**********************************************************************/
