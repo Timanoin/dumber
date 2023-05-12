@@ -97,6 +97,8 @@ private:
     RT_TASK th_cameraSendImage;
     RT_TASK th_closeCamera;
     RT_TASK th_findArena;
+    RT_TASK th_reqPosition;
+    RT_TASK th_stopPosition;
     // INSA End custom tasks
     
     /**********************************************************************/
@@ -124,6 +126,8 @@ private:
     RT_SEM sem_closeCamera;
     RT_SEM sem_openCamera;
     RT_SEM sem_findArena;
+    RT_SEM sem_reqPosition;
+    RT_SEM sem_stopPosition;
     // END INSA
 
     /**********************************************************************/

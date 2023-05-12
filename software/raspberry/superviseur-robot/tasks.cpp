@@ -132,15 +132,28 @@ void Tasks::Init() {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // Open Camera (14)
     if (err = rt_sem_create(&sem_openCamera, NULL, 1, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // Find Arena (17)
     if (err = rt_sem_create(&sem_findArena, NULL, 1, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-
+    /*
+    // Request Position (18)
+    if (err = rt_sem_create(&sem_reqPosition, NULL, 1, S_FIFO)) {
+        cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    // Stop Requesting Position (19)
+    if (err = rt_sem_create(&sem_stopPosition, NULL, 1, S_FIFO)) {
+        cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    */
     // End
     cout << "Semaphores created successfully" << endl << flush;
 
@@ -180,7 +193,6 @@ void Tasks::Init() {
         exit(EXIT_FAILURE);
     }
     // Watchdog (11)
-
     if (err = rt_task_create(&th_startRobotWD, "th_startRobotWD", 0, PRIORITY_TSTARTROBOTWD, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -189,6 +201,7 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // Camera (14,15,16)
     if (err = rt_task_create(&th_openCamera, "th_openCamera", 0, PRIORITY_TOPENCAMERA, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -201,12 +214,24 @@ void Tasks::Init() {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+    // Arena (17)
     if (err = rt_task_create(&th_findArena, "th_findArena", 0, PRIORITY_TFINDARENA, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-
+    // Position (18,19)
+    /*
+    if (err = rt_task_create(&th_reqPosition, "th_reqPosition", 0, PRIORITY_TREQPOS, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    if (err = rt_task_create(&th_stopPosition, "th_stopPosition", 0, PRIORITY_TSTOPPOS, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    */
     // END custom tasks
+
     cout << "Tasks created successfully" << endl << flush;
 
     /**************************************************************************************/
@@ -292,6 +317,17 @@ void Tasks::Run() {
         exit(EXIT_FAILURE);
     }
 
+    // Request position (18-19)
+    /*
+    if (err = rt_task_start(&th_reqPosition, (void(*)(void*)) & Tasks::RequestPosition, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    if (err = rt_task_start(&th_stopPosition, (void(*)(void*)) & Tasks::StopPosition, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    */
     // INSA End custom tasks
     cout << "Tasks launched" << endl << flush;
 }
@@ -414,7 +450,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_sem_v(&sem_findArena);
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_ARENA_CONFIRM)) {
-            arena = tmp_arena;
+            if (tmp_arena != nullptr) arena = tmp_arena;
             sendingImage = true;
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_ARENA_INFIRM)) {
@@ -792,7 +828,7 @@ void Tasks::FindArena(void *args)
             Img* image = new Img(camera->Grab());
             rt_mutex_release(&mutex_camera);
             tmp_arena = new Arena(image->SearchArena());
-            if (tmp_arena->IsEmpty())
+            if (tmp_arena->IsEmpty() || tmp_arena == nullptr)
             {
                 Message* msg_nack = new Message(MESSAGE_ANSWER_NACK); 
                 monitor.Write(msg_nack);
