@@ -224,11 +224,11 @@ private:
 
     // Feature 18
     // Task that turns the camera on
-    void Tasks::RequestPosition(void *args);
+    void RequestPosition(void *args);
 
     // Feature 19
     // Task that stops the position
-    void Tasks::StopPosition(void *args);
+    void StopPosition(void *args);
     // END INSA
 
 };
