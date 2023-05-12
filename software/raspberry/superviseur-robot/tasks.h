@@ -222,6 +222,13 @@ private:
     // Task that tries to find the arena
     void FindArena(void *args);
 
+    // Feature 18
+    // Task that turns the camera on
+    void Tasks::RequestPosition(void *args);
+
+    // Feature 19
+    // Task that stops the position
+    void Tasks::StopPosition(void *args);
     // END INSA
 
 };
