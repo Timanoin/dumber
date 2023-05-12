@@ -38,6 +38,8 @@
 #define PRIORITY_TCLOSECAMERA 28
 
 #define PRIORITY_TFINDARENA 18
+#define PRIORITY_TREQPOS 20
+#define PRIORITY_TSTOPPOS 20
 
 // END CONSTANTS
 
@@ -863,7 +865,6 @@ void Tasks::FindArena(void *args)
 
 // Feature 18
 // Task that turns the camera on
-
 void Tasks::RequestPosition(void *args)
 {   
     rt_sem_p(&sem_barrier, TM_INFINITE);
@@ -873,9 +874,9 @@ void Tasks::RequestPosition(void *args)
         cout << endl << "Requesting robot position" << endl;
     }
 }
+
 // Feature 19
 // Task that stops the position
-
 void Tasks::StopPosition(void *args)
 {
     rt_sem_p(&sem_barrier, TM_INFINITE);
