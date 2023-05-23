@@ -386,7 +386,6 @@ void Tasks::ServerTask(void *arg) {
     monitor.AcceptClient(); // Wait the monitor client
     cout << "Rock'n'Roll baby, client accepted!" << endl << flush;
     rt_sem_broadcast(&sem_serverOk);
-    monitorClosed = false;
 }
 
 /**
@@ -913,47 +912,43 @@ void Tasks::KillComm(void *args)
     rt_sem_p(&sem_barrier, TM_INFINITE);
     while (1) {
         rt_sem_p(&sem_killComm, TM_INFINITE);
-        if (!monitorClosed)
-        {
-            // Message sent to terminal
-            cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
-            // Reset class attributes ("global variables")
-            rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
-            robotStarted = 0;
-            rt_mutex_release(&mutex_robotStarted);
-            move = MESSAGE_ROBOT_STOP;
-            // Compteur à trois
-            cpt = 0;
-            // Blocks or unlocks the camera
-            sendingImage = false;
-            // Current arena drawn on screen
-            arena = nullptr;
-            // Temporary
-            tmp_arena = nullptr;
-            // Display or not the position of the robot
-            sendingPosition = false;
 
-            /* rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
+        // Message sent to terminal
+        cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
+        // Reset class attributes ("global variables")
+        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+        robotStarted = 0;
+        rt_mutex_release(&mutex_robotStarted);
+        move = MESSAGE_ROBOT_STOP;
+        // Compteur à trois
+        cpt = 0;
+        // Blocks or unlocks the camera
+        sendingImage = false;
+        // Current arena drawn on screen
+        arena = nullptr;
+        // Temporary
+        tmp_arena = nullptr;
+        // Display or not the position of the robot
+        sendingPosition = false;
 
-            // Stop robot  
-            robot.Write(robot.Stop());
-            robot.Write(robot.Reset());
-            // Stop communication with robot
-            robot.Close();
+        rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
 
-            rt_mutex_release(&mutex_robot); */
+        // Stop robot  
+        robot.Write(robot.Stop());
+        robot.Write(robot.Reset());
+        // Stop communication with robot
+        robot.Close();
 
-            // Close camera
-            rt_sem_v(&sem_closeCamera);
-            
-            /* // Close server
-            rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
-            monitor.Close();
-            rt_mutex_release(&mutex_monitor); */
-            Stop();
-            monitorClosed = true;
-            
-        }
+        rt_mutex_release(&mutex_robot); 
+
+        // Close camera
+        rt_sem_v(&sem_closeCamera);
+        
+        // Close server and waiting for new monitor
+        rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
+        monitor.Close();
+        monitor.AcceptClient();
+        rt_mutex_release(&mutex_monitor);  
 
                     
     }
