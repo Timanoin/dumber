@@ -477,6 +477,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_sem_v(&sem_stopPosition);
         }
         else if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
+            cout << "BJRBRJBRJBJRBJRBJRBJRBJBRJBRJBRJBRJBRJBJKRBAEUOHTBIOEZHGIOZEHGIPOERZHIOGHRZEIOGHIEZOHGIOZRHE" << endl << flush;
             rt_sem_v(&sem_killComm);
         }
         // END INSA
@@ -539,7 +540,7 @@ void Tasks::StartRobotTask(void *arg) {
         checkWriteError(msgSend);
 
         cout << msgSend->GetID();
-        cout << ")" << endl;
+        cout << ")" << endl << flush;
 
         cout << "Movement answer: " << msgSend->ToString() << endl << flush;
         WriteInQueue(&q_messageToMon, msgSend);  // msgSend will be deleted by sendToMon
@@ -722,7 +723,7 @@ void Tasks::checkWriteError(Message* msg)
     if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || *msg == MESSAGE_ANSWER_COM_ERROR)
     {
         cpt += 1;
-        cout << endl << "/!\\ Compteur : " << cpt << endl;
+        cout << endl << "/!\\ Compteur : " << cpt << endl << flush;
     }
     else 
     {
@@ -750,20 +751,20 @@ void Tasks::OpenCamera(void *args)
         rt_mutex_release(&mutex_camera);
         if (!co)
         {
-            cout << endl << "Opening camera" << endl;
+            cout << endl << "Opening camera" << endl << flush;
             // Check if the camera is started 
             rt_mutex_acquire(&mutex_camera, TM_INFINITE);
             success = camera->Open();
             rt_mutex_release(&mutex_camera);
             if (success) {
                 sendingImage = true;
-                cout << endl << "Camera Open !" << endl;
+                cout << endl << "Camera Open !" << endl << flush;
             }
             else {
-                cout << endl << "Open camera failed" << endl;
+                cout << endl << "Open camera failed" << endl << flush;
             }
         } else {
-            cout << endl << "Camera is already open" << endl;
+            cout << endl << "Camera is already open" << endl << flush;
         }
     }
 }
@@ -811,7 +812,7 @@ void Tasks::CameraSendImage(void *args)
             MessageImg* msgimg = new MessageImg(MESSAGE_CAM_IMAGE, image); 
             // Send message to monitor with image
             WriteInQueue(&q_messageToMon, msgimg);
-            cout << endl << "Sending Image.........." << endl;
+            cout << endl << "Sending Image.........." << endl << flush;
 
         }
     }
@@ -825,7 +826,7 @@ void Tasks::CloseCamera(void *args)
     rt_sem_p(&sem_barrier, TM_INFINITE);  
     while (1) {
         rt_sem_p(&sem_closeCamera, TM_INFINITE);
-        cout << endl << "Closing camera" << endl;
+        cout << endl << "Closing camera" << endl << flush;
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
         co = camera->IsOpen();
         rt_mutex_release(&mutex_camera);
@@ -835,10 +836,10 @@ void Tasks::CloseCamera(void *args)
             co = camera->IsOpen();
             rt_mutex_release(&mutex_camera);
             if (co){
-                cout << endl << "Camera not closed" << endl;
+                cout << endl << "Camera not closed" << endl << flush;
             } else {
                 sendingImage = false;
-                cout << endl << "Camera closed" << endl;
+                cout << endl << "Camera closed" << endl << flush;
             }
         }
     }
@@ -876,7 +877,7 @@ void Tasks::FindArena(void *args)
                 WriteInQueue(&q_messageToMon, msgimg);
             }
         } else {
-            cout << endl << "Camera is not open" << endl;
+            cout << endl << "Camera is not open" << endl << flush;
         }
     }
 }
@@ -889,7 +890,7 @@ void Tasks::RequestPosition(void *args)
     while (1) {
         rt_sem_p(&sem_reqPosition, TM_INFINITE);
         if (!sendingPosition) sendingPosition = true;
-        cout << endl << "Requesting robot position" << endl;
+        cout << endl << "Requesting robot position" << endl << flush;
     }
 }
 
@@ -901,7 +902,7 @@ void Tasks::StopPosition(void *args)
     while (1) {
         rt_sem_p(&sem_stopPosition, TM_INFINITE);
         if (sendingPosition) sendingPosition = false;
-        cout << endl << "Stop requesting robot position" << endl;
+        cout << endl << "Stop requesting robot position" << endl << flush;
     }
 }
 
@@ -915,8 +916,8 @@ void Tasks::KillComm(void *args)
         rt_sem_p(&sem_killComm, TM_INFINITE);
 
         // Message sent to terminal
-        cout << endl << "/!\\ ERROR: communication with monitor lost." << endl; 
-        cout << endl << "Salut ca a planté" << endl; 
+        cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
+        cout << endl << "Salut ca a planté" << endl << flush; 
         // Reset class attributes ("global variables")
         rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
         robotStarted = 0;
