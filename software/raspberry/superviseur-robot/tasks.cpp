@@ -722,7 +722,7 @@ void Tasks::checkWriteError(Message* msg)
     if (*msg == MESSAGE_ANSWER_ROBOT_TIMEOUT || *msg == MESSAGE_ANSWER_COM_ERROR)
     {
         cpt += 1;
-        cout << endl << "/!\\ Compteur : " << cpt;
+        cout << endl << "/!\\ Compteur : " << cpt << endl;
     }
     else 
     {
