@@ -917,7 +917,7 @@ void Tasks::KillComm(void *args)
         // Message sent to terminal
         cout << endl << "/!\\ ERROR: communication with monitor lost." << endl; 
         cout << endl << "Salut ca a planté" << endl; 
-        /*// Reset class attributes ("global variables")
+        // Reset class attributes ("global variables")
         rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
         robotStarted = 0;
         rt_mutex_release(&mutex_robotStarted);
@@ -931,7 +931,7 @@ void Tasks::KillComm(void *args)
         // Temporary
         tmp_arena = nullptr;
         // Display or not the position of the robot
-        sendingPosition = false;  */
+        sendingPosition = false;
 
         rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
 
