@@ -951,7 +951,6 @@ void Tasks::KillComm(void *args)
             monitor.Close();
             rt_mutex_release(&mutex_monitor);
             monitorClosed = true;
-            Init();
             Run();
         }
 
