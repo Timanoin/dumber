@@ -79,7 +79,7 @@ private:
     Arena* tmp_arena = nullptr;
     // Display or not the position of the robot
     bool sendingPosition = false;
-    bool monitorClosed = false;
+    bool monitorClosed = true;
     // END INSA
     
     /**********************************************************************/
