@@ -366,29 +366,27 @@ void Tasks::Join() {
  */
 void Tasks::ServerTask(void *arg) {
     int status;
-    if (monitorClosed)
-    {
-        cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
-        // Synchronization barrier (waiting that all tasks are started)
-        rt_sem_p(&sem_barrier, TM_INFINITE);
 
-        /**************************************************************************************/
-        /* The task server starts here                                                        */
-        /**************************************************************************************/
-        rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
-        status = monitor.Open(SERVER_PORT);
-        rt_mutex_release(&mutex_monitor);
+    cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
+    // Synchronization barrier (waiting that all tasks are started)
+    rt_sem_p(&sem_barrier, TM_INFINITE);
 
-        cout << "Open server on port " << (SERVER_PORT) << " (" << status << ")" << endl;
+    /**************************************************************************************/
+    /* The task server starts here                                                        */
+    /**************************************************************************************/
+    rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
+    status = monitor.Open(SERVER_PORT);
+    rt_mutex_release(&mutex_monitor);
 
-        if (status < 0) throw std::runtime_error {
-            "Unable to start server on port " + std::to_string(SERVER_PORT)
-        };
-        monitor.AcceptClient(); // Wait the monitor client
-        cout << "Rock'n'Roll baby, client accepted!" << endl << flush;
-        rt_sem_broadcast(&sem_serverOk);
-        monitorClosed = false;
-    }
+    cout << "Open server on port " << (SERVER_PORT) << " (" << status << ")" << endl;
+
+    if (status < 0) throw std::runtime_error {
+        "Unable to start server on port " + std::to_string(SERVER_PORT)
+    };
+    monitor.AcceptClient(); // Wait the monitor client
+    cout << "Rock'n'Roll baby, client accepted!" << endl << flush;
+    rt_sem_broadcast(&sem_serverOk);
+    monitorClosed = false;
 }
 
 /**
