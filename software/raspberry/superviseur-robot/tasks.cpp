@@ -912,7 +912,7 @@ void Tasks::KillComm(void *args)
     rt_sem_p(&sem_barrier, TM_INFINITE);
     while (1) {
         rt_sem_p(&sem_killComm, TM_INFINITE);
-
+        rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
         // Message sent to terminal
         cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
         // Reset class attributes ("global variables")
@@ -945,7 +945,6 @@ void Tasks::KillComm(void *args)
         rt_sem_v(&sem_closeCamera);
         
         // Close server and waiting for new monitor
-        rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
         monitor.Close();
         monitor.AcceptClient();
         rt_mutex_release(&mutex_monitor);  
