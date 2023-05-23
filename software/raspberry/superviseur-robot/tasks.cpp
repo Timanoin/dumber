@@ -435,6 +435,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
 
         if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
             delete(msgRcv);
+            rt_sem_v(&sem_killComm);
             exit(-1);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_COM_OPEN)) {
             rt_sem_v(&sem_openComRobot);
@@ -476,10 +477,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         else if (msgRcv->CompareID(MESSAGE_CAM_POSITION_COMPUTE_STOP)) {
             rt_sem_v(&sem_stopPosition);
         }
-        else if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
-            cout << "BJRBRJBRJBJRBJRBJRBJRBJBRJBRJBRJBRJBRJBJKRBAEUOHTBIOEZHGIOZEHGIPOERZHIOGHRZEIOGHIEZOHGIOZRHE" << endl << flush;
-            rt_sem_v(&sem_killComm);
-        }
+
         // END INSA
          delete(msgRcv); // mus be deleted manually, no consumer
     }
