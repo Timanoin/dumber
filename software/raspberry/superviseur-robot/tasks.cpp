@@ -933,7 +933,7 @@ void Tasks::KillComm(void *args)
             // Display or not the position of the robot
             sendingPosition = false;
 
-            rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
+            /* rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
 
             // Stop robot  
             robot.Write(robot.Stop());
@@ -941,17 +941,18 @@ void Tasks::KillComm(void *args)
             // Stop communication with robot
             robot.Close();
 
-            rt_mutex_release(&mutex_robot);
+            rt_mutex_release(&mutex_robot); */
 
             // Close camera
             rt_sem_v(&sem_closeCamera);
             
-            // Close server
+            /* // Close server
             rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
             monitor.Close();
-            rt_mutex_release(&mutex_monitor);
+            rt_mutex_release(&mutex_monitor); */
+            Stop();
             monitorClosed = true;
-            Run();
+            
         }
 
                     
