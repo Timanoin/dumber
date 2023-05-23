@@ -40,7 +40,7 @@
 #define PRIORITY_TFINDARENA 28
 #define PRIORITY_TREQPOS 21
 #define PRIORITY_TSTOPPOS 21
-#define PRIORITY_TKILLCOMM 30
+#define PRIORITY_TKILLCOMM 31
 
 // END CONSTANTS
 
@@ -376,6 +376,7 @@ void Tasks::ServerTask(void *arg) {
     /**************************************************************************************/
     rt_mutex_acquire(&mutex_monitor, TM_INFINITE);
     status = monitor.Open(SERVER_PORT);
+    monitorClosed = false;
     rt_mutex_release(&mutex_monitor);
 
     cout << "Open server on port " << (SERVER_PORT) << " (" << status << ")" << endl;
@@ -436,6 +437,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
             rt_sem_v(&sem_killComm);
             cout << "TESTESTETSTESTTETETES" << endl << flush;
+            
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_COM_OPEN)) {
             rt_sem_v(&sem_openComRobot);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITHOUT_WD)) {
@@ -911,43 +913,47 @@ void Tasks::KillComm(void *args)
     rt_sem_p(&sem_barrier, TM_INFINITE);
     while (1) {
         rt_sem_p(&sem_killComm, TM_INFINITE);
+        if (!monitorClosed)
+        {
+            // Message sent to terminal
+            cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
+            // Reset class attributes ("global variables")
+            rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+            robotStarted = 0;
+            rt_mutex_release(&mutex_robotStarted);
+            move = MESSAGE_ROBOT_STOP;
+            // Compteur à trois
+            cpt = 0;
+            // Blocks or unlocks the camera
+            sendingImage = false;
+            // Current arena drawn on screen
+            arena = nullptr;
+            // Temporary
+            tmp_arena = nullptr;
+            // Display or not the position of the robot
+            sendingPosition = false;
 
-        // Message sent to terminal
-        cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
-        cout << endl << "Salut ca a planté" << endl << flush; 
-        // Reset class attributes ("global variables")
-        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
-        robotStarted = 0;
-        rt_mutex_release(&mutex_robotStarted);
-        move = MESSAGE_ROBOT_STOP;
-        // Compteur à trois
-        cpt = 0;
-        // Blocks or unlocks the camera
-        sendingImage = false;
-        // Current arena drawn on screen
-        arena = nullptr;
-        // Temporary
-        tmp_arena = nullptr;
-        // Display or not the position of the robot
-        sendingPosition = false;
+            rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
 
-        rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
+            // Stop robot  
+            robot.Write(robot.Stop());
+            robot.Write(robot.Reset());
+            // Stop communication with robot
+            robot.Close();
 
-        // Stop robot  
-        robot.Write(robot.Stop());
-        robot.Write(robot.Reset());
-        // Stop communication with robot
-        robot.Close();
+            rt_mutex_release(&mutex_robot);
 
-        rt_mutex_release(&mutex_robot);
+            // Close server
+            rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
+            monitor.Close();
+            rt_mutex_release(&mutex_monitor);
 
-        // Close server
-        rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
-        monitor.Close();
-        rt_mutex_release(&mutex_monitor);
+            // Close camera
+            rt_sem_v(&sem_closeCamera);
+            monitorClosed = true;
+        }
 
-        // Close camera
-        rt_sem_v(&sem_closeCamera);            
+                    
     }
 }
 // END INSA
