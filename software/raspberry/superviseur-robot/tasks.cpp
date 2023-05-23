@@ -451,13 +451,13 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_mutex_release(&mutex_move);
         // INSA 
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
-           rt_sem_v(&sem_startRobotWD);
+            rt_sem_v(&sem_startRobotWD);
         } 
         else if (msgRcv->CompareID(MESSAGE_CAM_OPEN)) {
-           rt_sem_v(&sem_openCamera);
+            rt_sem_v(&sem_openCamera);
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_CLOSE)) {
-           rt_sem_v(&sem_closeCamera);
+            rt_sem_v(&sem_closeCamera);
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_ASK_ARENA)) {
             rt_sem_v(&sem_findArena);
@@ -471,7 +471,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             sendingImage = true;
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_POSITION_COMPUTE_START)) {
-           rt_sem_v(&sem_reqPosition);
+            rt_sem_v(&sem_reqPosition);
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_POSITION_COMPUTE_STOP)) {
             rt_sem_v(&sem_stopPosition);
@@ -920,8 +920,8 @@ void Tasks::KillComm(void *args)
         rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
 
         // Stop robot  
-        msgSend = robot.Write(robot.Stop());
-        msgSend = robot.Write(robot.PowerOff());
+        robot.Write(robot.Stop());
+        robot.Write(robot.PowerOff());
         // Stop communication with robot
         robot.Close();
 
@@ -933,7 +933,7 @@ void Tasks::KillComm(void *args)
         rt_mutex_release(&mutex_monitor);
 
         // Close camera
-        CloseCamera();
+        rt_sem_v(&sem_closeCamera);
 
         // Reset class attributes ("global variables")
         robotStarted = 0;
