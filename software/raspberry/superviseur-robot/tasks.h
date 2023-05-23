@@ -102,7 +102,7 @@ private:
     RT_TASK th_findArena;
     RT_TASK th_reqPosition;
     RT_TASK th_stopPosition;
-    RT_TASK th_killComm;
+    //RT_TASK th_killComm;
     // INSA End custom tasks
     
     /**********************************************************************/
@@ -132,7 +132,7 @@ private:
     RT_SEM sem_findArena;
     RT_SEM sem_reqPosition;
     RT_SEM sem_stopPosition;
-    RT_SEM sem_killComm;
+    //RT_SEM sem_killComm;
     // END INSA
 
     /**********************************************************************/
