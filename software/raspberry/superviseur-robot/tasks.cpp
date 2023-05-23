@@ -40,7 +40,7 @@
 #define PRIORITY_TFINDARENA 28
 #define PRIORITY_TREQPOS 21
 #define PRIORITY_TSTOPPOS 21
-#define PRIORITY_TKILLCOMM 22
+#define PRIORITY_TKILLCOMM 30
 
 // END CONSTANTS
 
@@ -935,7 +935,7 @@ void Tasks::KillComm(void *args)
 
         // Stop robot  
         robot.Write(robot.Stop());
-        robot.Write(robot.PowerOff());
+        robot.Write(robot.Reset());
         // Stop communication with robot
         robot.Close();
 
