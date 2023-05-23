@@ -943,14 +943,16 @@ void Tasks::KillComm(void *args)
 
             rt_mutex_release(&mutex_robot);
 
+            // Close camera
+            rt_sem_v(&sem_closeCamera);
+            
             // Close server
             rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
             monitor.Close();
             rt_mutex_release(&mutex_monitor);
-
-            // Close camera
-            rt_sem_v(&sem_closeCamera);
             monitorClosed = true;
+            Init();
+            Run();
         }
 
                     
