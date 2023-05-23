@@ -40,6 +40,7 @@
 #define PRIORITY_TFINDARENA 28
 #define PRIORITY_TREQPOS 21
 #define PRIORITY_TSTOPPOS 21
+#define PRIORITY_TKILLCOMM 22
 
 // END CONSTANTS
 
@@ -120,6 +121,7 @@ void Tasks::Init() {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+ 
 
     // INSA Custom semaphores
 
@@ -151,6 +153,11 @@ void Tasks::Init() {
     }
     // Stop Requesting Position (19)
     if (err = rt_sem_create(&sem_stopPosition, NULL, 0, S_FIFO)) {
+        cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    // Kill Communication (6)
+    if (err = rt_sem_create(&sem_killComm, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -225,6 +232,11 @@ void Tasks::Init() {
         exit(EXIT_FAILURE);
     }
     if (err = rt_task_create(&th_stopPosition, "th_stopPosition", 0, PRIORITY_TSTOPPOS, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    // Kill communication
+    if (err = rt_task_create(&th_killComm, "th_killComm", 0, PRIORITY_TKILLCOMM, 0)) {
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -321,6 +333,11 @@ void Tasks::Run() {
         exit(EXIT_FAILURE);
     }
     if (err = rt_task_start(&th_stopPosition, (void(*)(void*)) & Tasks::StopPosition, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+    // Kill Communication (6)
+    if (err = rt_task_start(&th_killComm, (void(*)(void*)) & Tasks::KillComm, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -432,7 +449,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
             rt_mutex_acquire(&mutex_move, TM_INFINITE);
             move = msgRcv->GetID();
             rt_mutex_release(&mutex_move);
-        // INSA Start robot with watchdog
+        // INSA 
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITH_WD)) {
            rt_sem_v(&sem_startRobotWD);
         } 
@@ -458,6 +475,9 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         }
         else if (msgRcv->CompareID(MESSAGE_CAM_POSITION_COMPUTE_STOP)) {
             rt_sem_v(&sem_stopPosition);
+        }
+        else if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
+            rt_sem_v(&sem_killComm);
         }
         // END INSA
          delete(msgRcv); // mus be deleted manually, no consumer
@@ -885,4 +905,49 @@ void Tasks::StopPosition(void *args)
     }
 }
 
+// Feature 5&6
+// Task that kills the comunication between the robot, the supervisor and the monitor
+// It sends a message to the monitor
+void Tasks::KillComm(void *args)
+{
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    while (1) {
+        rt_sem_p(&sem_stopPosition, TM_INFINITE);
+
+        // Message sent to terminal
+        cout << endl << "/!\\ ERROR: communication with monitor lost." << endl; 
+
+        rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
+
+        // Stop robot  
+        msgSend = robot.Write(robot.Stop());
+        msgSend = robot.Write(robot.PowerOff());
+        // Stop communication with robot
+        robot.Close();
+
+        rt_mutex_release(&mutex_robot);
+
+        // Close server
+        rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
+        monitor.Close();
+        rt_mutex_release(&mutex_monitor);
+
+        // Close camera
+        CloseCamera();
+
+        // Reset class attributes ("global variables")
+        robotStarted = 0;
+        move = MESSAGE_ROBOT_STOP;
+        // Compteur à trois
+        cpt = 0;
+        // Blocks or unlocks the camera
+        sendingImage = false;
+        // Current arena drawn on screen
+        arena = nullptr;
+        // Temporary
+        tmp_arena = nullptr;
+        // Display or not the position of the robot
+        sendingPosition = false;              
+    }
+}
 // END INSA

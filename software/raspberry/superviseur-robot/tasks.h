@@ -101,6 +101,7 @@ private:
     RT_TASK th_findArena;
     RT_TASK th_reqPosition;
     RT_TASK th_stopPosition;
+    RT_TASK th_killComm;
     // INSA End custom tasks
     
     /**********************************************************************/
@@ -130,6 +131,7 @@ private:
     RT_SEM sem_findArena;
     RT_SEM sem_reqPosition;
     RT_SEM sem_stopPosition;
+    RT_SEM sem_killComm;
     // END INSA
 
     /**********************************************************************/
@@ -229,7 +231,12 @@ private:
     // Feature 19
     // Task that stops the position
     void StopPosition(void *args);
+
+    // Featur 6
+    // Task that stops the robot when the connection is lost
+    void KillComm(void *args);
     // END INSA
+
 
 };
 
