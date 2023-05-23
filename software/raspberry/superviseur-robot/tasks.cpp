@@ -458,8 +458,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
 
             // Stop robot  
             robot.Write(robot.Stop());
-            robot.Write(robot.Reset());
-            
+            robot.Write(robot.PowerOff());
         
 
             rt_mutex_release(&mutex_robot); 
