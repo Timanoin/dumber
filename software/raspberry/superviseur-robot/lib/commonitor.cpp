@@ -198,12 +198,6 @@ Message *ComMonitor::Read() {
 
     // Call user method after read
     Read_Post();
-    
-    if (*msg == MESSAGE_MONITOR_LOST) 
-    {
-        // Runs task for features 5&6
-        rt_sem_v(&sem_closeCamera);
-    }
     return msg;
 }
 
