@@ -434,7 +434,43 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         cout << "Rcv <= " << msgRcv->ToString() << endl << flush;
 
         if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
-            rt_sem_v(&sem_killComm);            
+            //rt_sem_v(&sem_killComm);  
+            rt_mutex_acquire(&mutex_monitor, TM_INFINITE);   
+        // Message sent to terminal
+        cout << endl << "/!\\ ERROR: communication with monitor lost." << endl << flush; 
+        // Reset class attributes ("global variables")
+        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
+        robotStarted = 0;
+        rt_mutex_release(&mutex_robotStarted);
+        move = MESSAGE_ROBOT_STOP;
+        // Compteur à trois
+        cpt = 0;
+        // Blocks or unlocks the camera
+        sendingImage = false;
+        // Current arena drawn on screen
+        arena = nullptr;
+        // Temporary
+        tmp_arena = nullptr;
+        // Display or not the position of the robot
+        sendingPosition = false;
+
+        rt_mutex_acquire(&mutex_robot, TM_INFINITE);   
+
+        // Stop robot  
+        robot.Write(robot.Stop());
+        robot.Write(robot.Reset());
+        // Stop communication with robot
+        robot.Close();
+
+        rt_mutex_release(&mutex_robot); 
+
+        // Close camera
+        rt_sem_v(&sem_closeCamera);
+        
+        // Close server and waiting for new monitor
+        monitor.Close();
+        monitor.AcceptClient();
+        rt_mutex_release(&mutex_monitor);            
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_COM_OPEN)) {
             rt_sem_v(&sem_openComRobot);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITHOUT_WD)) {
