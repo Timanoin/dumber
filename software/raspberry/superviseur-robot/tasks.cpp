@@ -936,7 +936,9 @@ void Tasks::KillComm(void *args)
         rt_sem_v(&sem_closeCamera);
 
         // Reset class attributes ("global variables")
+        rt_mutex_acquire(&mutex_robotStarted, TM_INFINITE);
         robotStarted = 0;
+        rt_mutex_release(&mutex_robotStarted);
         move = MESSAGE_ROBOT_STOP;
         // Compteur à trois
         cpt = 0;
