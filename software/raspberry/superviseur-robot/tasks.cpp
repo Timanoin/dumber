@@ -31,7 +31,7 @@
 // INSA CONSTANTS
 #define PRIORITY_TBATTERYLEVEL 30
 #define PRIORITY_TSTARTROBOTWD 20
-#define PRIORITY_TRELOADWD 31
+#define PRIORITY_TRELOADWD 30
 
 #define PRIORITY_TOPENCAMERA 28
 #define PRIORITY_TCAMERASENDIMAGE 21
@@ -40,7 +40,7 @@
 #define PRIORITY_TFINDARENA 28
 #define PRIORITY_TREQPOS 21
 #define PRIORITY_TSTOPPOS 21
-#define PRIORITY_TKILLCOMM 31
+#define PRIORITY_TKILLCOMM 95
 
 // END CONSTANTS
 
@@ -434,9 +434,7 @@ void Tasks::ReceiveFromMonTask(void *arg) {
         cout << "Rcv <= " << msgRcv->ToString() << endl << flush;
 
         if (msgRcv->CompareID(MESSAGE_MONITOR_LOST)) {
-            rt_sem_v(&sem_killComm);
-            cout << "TESTESTETSTESTTETETES" << endl << flush;
-            
+            rt_sem_v(&sem_killComm);            
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_COM_OPEN)) {
             rt_sem_v(&sem_openComRobot);
         } else if (msgRcv->CompareID(MESSAGE_ROBOT_START_WITHOUT_WD)) {
